@@ -2,9 +2,15 @@ import { Response, Request, Body } from "https://deno.land/x/oak/mod.ts";
 import { v4 } from "https://deno.land/std/uuid/mod.ts";
 import { IProduct, Products } from "../data/Products.ts";
 
-let products=Products
+let products = Products
 
-const getAll = ({ response }: { response: Response }) => {
+interface ICtx {
+  params : { id:string },
+  request: Request,
+  response: Response;
+}
+
+const getAll = ({ response }: ICtx) => {
   response.status = 200;
   response.body = {
     messange: "Products successfull",
@@ -12,13 +18,7 @@ const getAll = ({ response }: { response: Response }) => {
   };
 };
 
-const getById = ({
-  params,
-  response,
-}: {
-  params: { id: string };
-  response: Response;
-}) => {
+const getById = ({ params, response }: ICtx) => {
   let product = products.find((product) => product.id === params.id);
   if (product) {
     response.status = 200;
@@ -34,69 +34,49 @@ const getById = ({
   }
 };
 
-const create = async ({
-  request,
-  response,
-}: {
-  request: Request;
-  response: Response;
-}) => {
+const create = async ({ request, response }: ICtx) => {
   let { value }: Body = await request.body();
   if (!value) {
-       response.status = 404;
-       response.body = {
-         messange: "Product Not found",
-       };
+    response.status = 404;
+    response.body = {
+      messange: "Product Not found",
+    };
   } else {
-      let newProduct: IProduct = {
-        id: v4.generate(),
-        name: value.name,
-        price: value.price,
-      };
-      products.push(newProduct);
-      response.status = 200;
-      response.body = {
-        messange: "New product create",
-        newProduct,
-      };
+    let newProduct: IProduct = {
+      id: v4.generate(),
+      name: value.name,
+      price: value.price,
+    };
+    products.push(newProduct);
+    response.status = 200;
+    response.body = {
+      messange: "New product create",
+      newProduct,
+    };
   }
-  
 };
 
-const update = async ({
-    request,
-    response,
-    params,
-}: {
-    request: Request,
-    response: Response,
-    params: { id: string };
-}) => {
+const update = async ({ request, response, params }: ICtx ) => {
   let { value } = await request.body();
   let product = products.find((product) => product.id === params.id);
   if (!product) {
-      response.status = 404;
-      response.body = {
-        messange: "Product Not found",
-      };
+    response.status = 404;
+    response.body = {
+      messange: "Product Not found",
+    };
   } else {
-      products = products.map(product=>product.id===params.id?{...product,...value}:product)
-      response.status = 200;
-      response.body = {
-        messange: "Product update",
-        products,
-      };
+    products = products.map((product) =>
+      product.id === params.id ? { ...product, ...value } : product
+    );
+    response.status = 200;
+    response.body = {
+      messange: "Product update",
+      products,
+    };
   }
-        
 };
 
-const remove = ({
-  params,
-  response,
-}: {
-  params: { id: string };
-  response: Response;
-}) => {
+const remove = ({ params, response }: ICtx) => {
   products = products.filter((product) => product.id !== params.id);
   response.status = 200;
   response.body = {
