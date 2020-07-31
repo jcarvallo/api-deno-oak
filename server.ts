@@ -5,6 +5,6 @@ const app = new Application();
 
 app.use(router.routes());
 app.use(router.allowedMethods())
-console.log("server on port", 3000);
 
+console.log("server on port", 3000);
 await app.listen({ port: 3000 });
