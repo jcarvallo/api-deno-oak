@@ -5,6 +5,7 @@ A simple CRUD REST API example using Deno and Oak
 ```
 deno run --allow-net server.ts
 ```
+Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 # Endpoints
 
